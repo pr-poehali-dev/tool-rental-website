@@ -8,6 +8,8 @@ import Index from "./pages/Index";
 import Catalog from "./pages/Catalog";
 import ProductDetail from "./pages/ProductDetail";
 import Cart from "./pages/Cart";
+import Booking from "./pages/Booking";
+import BookingSuccess from "./pages/BookingSuccess";
 import NotFound from "./pages/NotFound";
 
 // Admin routes
@@ -15,6 +17,7 @@ import AdminLogin from "./pages/admin/AdminLogin";
 import AdminLayout from "./pages/admin/AdminLayout";
 import Dashboard from "./pages/admin/Dashboard";
 import Products from "./pages/admin/Products";
+import Bookings from "./pages/admin/Bookings";
 
 const queryClient = new QueryClient();
 
@@ -30,12 +33,15 @@ const App = () => (
           <Route path="/catalog" element={<Catalog />} />
           <Route path="/product/:id" element={<ProductDetail />} />
           <Route path="/cart" element={<Cart />} />
+          <Route path="/booking" element={<Booking />} />
+          <Route path="/booking-success/:id" element={<BookingSuccess />} />
           
           {/* Маршруты административной панели */}
           <Route path="/admin/login" element={<AdminLogin />} />
           <Route path="/admin" element={<AdminLayout />}>
             <Route path="dashboard" element={<Dashboard />} />
             <Route path="products" element={<Products />} />
+            <Route path="bookings" element={<Bookings />} />
             {/* Другие админ-маршруты будут добавлены по мере необходимости */}
           </Route>
           

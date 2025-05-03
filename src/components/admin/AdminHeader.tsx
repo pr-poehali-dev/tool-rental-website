@@ -10,13 +10,25 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { User as UserType } from "@/services/auth.service";
 
 type AdminHeaderProps = {
   onLogout: () => void;
+  user: UserType | null;
 };
 
-const AdminHeader = ({ onLogout }: AdminHeaderProps) => {
+const AdminHeader = ({ onLogout, user }: AdminHeaderProps) => {
+  // Получаем инициалы пользователя для аватара
+  const getInitials = (name: string) => {
+    return name
+      .split(' ')
+      .map(part => part[0])
+      .join('')
+      .toUpperCase()
+      .substring(0, 2);
+  };
+
   return (
     <header className="h-16 border-b bg-white flex items-center justify-between px-6 sticky top-0 z-10">
       <div className="flex items-center w-full max-w-md">
@@ -75,9 +87,12 @@ const AdminHeader = ({ onLogout }: AdminHeaderProps) => {
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" className="gap-2">
               <Avatar className="h-8 w-8">
-                <AvatarFallback className="bg-orange-100 text-orange-800">АА</AvatarFallback>
+                {user?.avatar && <AvatarImage src={user.avatar} alt={user.name} />}
+                <AvatarFallback className="bg-orange-100 text-orange-800">
+                  {user ? getInitials(user.name) : 'АА'}
+                </AvatarFallback>
               </Avatar>
-              <span>Админ</span>
+              <span>{user?.name || 'Админ'}</span>
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">

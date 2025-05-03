@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { AlertCircle } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { authService } from "@/services/auth.service";
 
 const AdminLogin = () => {
   const navigate = useNavigate();
@@ -30,29 +31,13 @@ const AdminLogin = () => {
     setIsLoading(true);
     
     try {
-      // В реальном приложении здесь будет запрос к API для аутентификации
+      // Интеграция с API - вызов сервиса авторизации
+      await authService.login({ email, password });
       
-      // Имитируем задержку для демонстрации
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      // Простая проверка (в реальном приложении здесь будет настоящая аутентификация)
-      if (email === "admin@prokattul.ru" && password === "admin") {
-        // Сохраняем информацию о входе в localStorage или в контекст React
-        localStorage.setItem("adminToken", "demo-token");
-        localStorage.setItem("adminUser", JSON.stringify({
-          id: 1,
-          name: "Администратор",
-          email: "admin@prokattul.ru",
-          role: "admin"
-        }));
-        
-        // Перенаправляем на дашборд
-        navigate("/admin/dashboard");
-      } else {
-        setError("Неверный email или пароль");
-      }
+      // Перенаправляем на дашборд
+      navigate("/admin/dashboard");
     } catch (err) {
-      setError("Произошла ошибка при входе. Пожалуйста, попробуйте снова.");
+      setError(err instanceof Error ? err.message : "Ошибка входа. Пожалуйста, попробуйте снова.");
       console.error(err);
     } finally {
       setIsLoading(false);

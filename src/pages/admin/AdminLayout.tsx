@@ -3,33 +3,52 @@ import { useEffect, useState } from "react";
 import { Outlet, useNavigate } from "react-router-dom";
 import AdminSidebar from "@/components/admin/AdminSidebar";
 import AdminHeader from "@/components/admin/AdminHeader";
+import { authService } from "@/services/auth.service";
+import { User } from "@/services/auth.service";
 
 const AdminLayout = () => {
   const navigate = useNavigate();
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [user, setUser] = useState<User | null>(null);
 
   useEffect(() => {
-    // Проверяем, есть ли токен администратора в localStorage
-    const token = localStorage.getItem("adminToken");
+    const checkAuth = async () => {
+      setIsLoading(true);
+      
+      try {
+        if (!authService.isAuthenticated()) {
+          navigate("/admin/login");
+          return;
+        }
+        
+        // Получаем информацию о пользователе
+        const userData = await authService.getProfile();
+        setUser(userData);
+        setIsAuthenticated(true);
+      } catch (error) {
+        console.error("Ошибка авторизации:", error);
+        // В случае ошибки перенаправляем на страницу входа
+        localStorage.removeItem("adminToken");
+        localStorage.removeItem("adminUser");
+        navigate("/admin/login");
+      } finally {
+        setIsLoading(false);
+      }
+    };
     
-    if (!token) {
-      // Если токена нет, перенаправляем на страницу входа
-      navigate("/admin/login");
-    } else {
-      setIsAuthenticated(true);
-    }
-    
-    setIsLoading(false);
+    checkAuth();
   }, [navigate]);
 
-  const handleLogout = () => {
-    // Удаляем данные аутентификации из localStorage
-    localStorage.removeItem("adminToken");
-    localStorage.removeItem("adminUser");
-    
-    // Перенаправляем на страницу входа
-    navigate("/admin/login");
+  const handleLogout = async () => {
+    try {
+      // Вызываем сервис для выхода из системы
+      await authService.logout();
+      // Перенаправляем на страницу входа
+      navigate("/admin/login");
+    } catch (error) {
+      console.error("Ошибка при выходе:", error);
+    }
   };
 
   if (isLoading) {
@@ -49,7 +68,7 @@ const AdminLayout = () => {
       <AdminSidebar onLogout={handleLogout} />
       
       <div className="flex-1 flex flex-col overflow-hidden">
-        <AdminHeader onLogout={handleLogout} />
+        <AdminHeader onLogout={handleLogout} user={user} />
         
         <main className="flex-1 overflow-auto p-6">
           <Outlet />
